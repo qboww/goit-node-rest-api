@@ -29,7 +29,6 @@ export async function removeContact(contactId) {
   }
 
   const deletedContact = data.splice(index, 1);
-
   await fs.writeFile(contactsPath, JSON.stringify(data, null, 2));
 
   return deletedContact;
@@ -40,7 +39,6 @@ export async function addContact(name, email, phone) {
   const newContact = { id: uuidv4(), name, email, phone };
 
   data.push(newContact);
-
   await fs.writeFile(contactsPath, JSON.stringify(data, null, 2));
 
   return newContact;
@@ -56,7 +54,6 @@ export async function updateContactById(id, updates) {
 
   const updatedContact = { ...contacts[index], ...updates };
   contacts[index] = updatedContact;
-
   await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
 
   return updatedContact;
