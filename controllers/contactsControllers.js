@@ -1,47 +1,58 @@
-import HttpError from "../helpers/HttpError.js";
-import controllerHandler from "../helpers/controllersHandler.js";
+import * as contactService from "../services/contactsService.js";
+import handleAsync from "../helpers/handleAsync.js";
+import respond from "../helpers/responseWrapper.js";
 
-import {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContactById,
-} from "../services/contactsServices.js";
-
-export const getAllContacts = controllerHandler(async (req, res) => {
-  const contacts = await listContacts();
-  res.status(200).json(contacts);
-});
-
-export const getOneContact = controllerHandler(async (req, res, next) => {
-  const contact = await getContactById(req.params.id);
-  if (!contact) {
-    return next(HttpError(404, "Contact not found!"));
+export const getAllContacts = handleAsync(async (req, res) => {
+  const listedContacts = await contactService.getAllContacts();
+  if (!listedContacts) {
+    return respond(res, 404, "Contacts not found");
   }
-  res.status(200).json(contact);
+  respond(res, 200, "success", { contacts: listedContacts });
 });
 
-export const deleteContact = controllerHandler(async (req, res, next) => {
-  const deletedContact = await removeContact(req.params.id);
-  if (!deletedContact) {
-    return next(HttpError(404, "Contact not found!"));
+export const getOneContact = handleAsync(async (req, res) => {
+  const { id } = req.params;
+  const foundContact = await contactService.getOneContact(id);
+  if (!foundContact) {
+    return respond(res, 404, "Contact not found");
   }
-  res.status(200).json(deletedContact);
+  respond(res, 200, "success", { contact: foundContact });
 });
 
-export const createContact = controllerHandler(async (req, res) => {
-  const { name, email, phone } = req.body;
-  const newContact = await addContact(name, email, phone);
-  res.status(201).json(newContact);
+export const deleteContact = handleAsync(async (req, res) => {
+  const { id } = req.params;
+  const removedContact = await contactService.deleteContact(id);
+  if (!removedContact) {
+    return respond(res, 404, "Contact not found");
+  }
+  respond(res, 200, "success", { contact: removedContact });
 });
 
-export const updateContact = controllerHandler(async (req, res, next) => {
+export const createContact = handleAsync(async (req, res) => {
+  const { name, email, phone, favorite } = req.body;
+  const createdContact = await contactService.createContact({ name, email, phone, favorite });
+  respond(res, 201, "success", { contact: createdContact });
+});
+
+export const updateContact = handleAsync(async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
-  const updatedContact = await updateContactById(id, updates);
+  const updatedContact = await contactService.updateContact(id, updates);
   if (!updatedContact) {
-    return next(HttpError(404, "Contact not found!"));
+    return respond(res, 404, "Contact not found");
   }
-  res.status(200).json(updatedContact);
+  respond(res, 201, "success", { contact: updatedContact });
+});
+
+export const updateStatusContact = handleAsync(async (req, res) => {
+  const { id } = req.params;
+  const { favorite } = req.body;
+  if (typeof favorite !== "boolean") {
+    return respond(res, 400, "Field must have a boolean value");
+  }
+  const updatedContact = await contactService.patchContact(id, favorite);
+  if (!updatedContact) {
+    return respond(res, 404, "Contact not found");
+  }
+  respond(res, 201, "success", { contact: updatedContact });
 });
