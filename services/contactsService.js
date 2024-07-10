@@ -1,4 +1,4 @@
-import Contact from "./schemas/contact.js";
+import Contact from "../schemas/contact.js";
 
 export const getAllContacts = () => {
   return Contact.find();
