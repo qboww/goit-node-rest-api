@@ -31,6 +31,10 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 connectDB().then(() => {
   app.listen(PORT, function () {
-    console.log(`Server running. Use our API on port: ${PORT}\n`);
+    console.log(`Server running. Use our API on port 3000`);
+    console.log(
+      "\x1b[36m%s\x1b[0m",
+      `Link: http://localhost:${PORT}/api/contacts\n`
+    );
   });
 });
