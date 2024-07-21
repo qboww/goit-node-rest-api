@@ -20,7 +20,7 @@ router.post("/login", validateUserLogin, login);
 router.post("/logout", authMiddleware, logout);
 router.get("/current", authMiddleware, getCurrent);
 router.patch(
-  "",
+  "/subscription",
   authMiddleware,
   validateSubscriptionUpdate,
   updateUserSubscription
