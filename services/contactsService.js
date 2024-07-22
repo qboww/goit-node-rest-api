@@ -4,8 +4,14 @@ export const getAllContacts = async ({ page, limit, favorite }) => {
   const skip = (page - 1) * limit;
   const filter = favorite !== undefined ? { favorite } : {};
 
-  const contacts = await Contact.find(filter).skip(skip).limit(limit);
-  return contacts;
+  const [contacts, totalCount] = await Promise.all([
+    Contact.find(filter).skip(skip).limit(limit),
+    Contact.countDocuments(filter),
+  ]);
+
+  const totalPages = Math.ceil(totalCount / limit);
+
+  return { contacts, totalPages };
 };
 
 export const getOneContact = (id) => {
